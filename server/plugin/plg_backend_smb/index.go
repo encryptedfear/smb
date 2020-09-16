@@ -27,18 +27,6 @@ type Smb struct {
 }
 
 func (smb Smb) Init(params map[string]string, app *App) (IBackend, error) {
-	p := struct {
-		server   string
-		shared   string
-		username string
-		password string
-	}{
-		params["server"],
-		params["shared"],
-		params["username"],
-		params["password"],
-	}
-
 	if c := SmbCache.Get(params); c != nil {
 		d := c.(*Smb)
 		return d, nil
