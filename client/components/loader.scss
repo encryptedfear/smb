@@ -1,0 +1,13 @@
+.component_loader{
+    text-align: center;
+    margin-top: 50px;
+}
+
+.loader-appear{
+    opacity: 0;
+}
+.loader-appear.loader-appear-active{
+    transition: opacity 0.1s ease-out;
+    transition-delay: 0.3s;
+    opacity: 1;
+}

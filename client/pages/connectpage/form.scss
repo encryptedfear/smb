@@ -1,0 +1,109 @@
+.component_page_connection_form{
+    margin-bottom: 7px;
+    border-radius: 3px;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    div.buttons{
+        display: flex;
+        margin: -10px -11px 10px;
+        padding: 0px 0px 6px 0;
+        overflow-x: auto;
+        button{
+            min-width: 80px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            padding: 8px 5px;
+            box-shadow: 0px 0px 0px rgba(0,0,0,0.2);
+            &.active{
+                transition: box-shadow 0.2s;
+                box-shadow: 0px 2px 20px rgba(0,0,0,0.2);
+            }
+        }
+    }
+    form{
+        padding-top: 5px;
+        label{
+            font-style: italic;
+            font-size: 0.9em;
+            display: block;
+            text-transform: capitalize;
+        }
+        .advanced_form{
+            max-height: 156px;
+            overflow-y: auto;
+            margin-top: 5px;
+            padding-right: 10px;
+        }
+        button.emphasis{
+            margin-top: 10px;
+            color: white;
+            text-transform: uppercase;
+        }
+        .third-party{
+            text-align: center;
+            img{
+                height: 115px;
+                margin: 0;
+            }
+        }
+        input[type="checkbox"]{
+            top: 0;
+            width: inherit;
+            margin-right: 5px;
+        }
+        input.component_input[name="oauth2"]{
+            display: none;
+        }
+    }
+}
+
+.component_page_connection_form.form-appear{
+    opacity: 0;
+    transform: translateX(5px);
+}
+.component_page_connection_form.form-appear.form-appear-active{
+    opacity: 1;
+    transform: translateX(0);
+    transition: transform 0.25s ease-out, opacity 0.5s ease-out;
+}
+
+
+.component_rememberme.remember-appear{
+    opacity: 0;
+    transform: translateX(40px);
+}
+.component_rememberme.remember-appear.remember-appear-active{
+    opacity: 1;
+    transform: translateX(0px);
+    transition: all 0.3s ease-out;
+    transition-delay: 0.5s;
+}
+
+.scroll-x{
+    overflow-x: auto!important;
+    overflow-y: hidden!important;
+    -webkit-overflow-scrolling: touch;
+    &::-webkit-scrollbar{
+        height:4px;
+    }
+    &::-webkit-scrollbar-track{
+        background: white;
+    }
+    &::-webkit-scrollbar-thumb{
+        -webkit-border-radius:2px;
+        -moz-border-radius:2px;
+        -ms-border-radius:2px;
+        -o-border-radius:2px;
+        border-radius:2px;
+        background:rgba(0,0,0,.1)
+    }
+}
+
+.dark-mode{
+    .component_page_connection_form{
+        background: var(--bg-color);
+    }
+    div.buttons button.active{
+        background: var(--dark-mode-bg-color);
+        color: var(--light);
+    }
+}
