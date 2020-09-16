@@ -44,7 +44,8 @@ func (smb Smb) Init(params map[string]string, app *App) (IBackend, error) {
 		return d, nil
 	}
 
-	conn, err := net.Dial("tcp", p.server+":445")
+	// conn, err := net.Dial("tcp", p.server + ":445")
+	conn, err := net.Dial("tcp", "192.168.0.14:445")
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +53,8 @@ func (smb Smb) Init(params map[string]string, app *App) (IBackend, error) {
 
 	d := &smb2.Dialer{
 		Initiator: &smb2.NTLMInitiator{
-			User:     p.username,
-			Password: p.password,
+			User:     "sephgallo",
+			Password: "Crimsonblue_@!23",
 		},
 	}
 
@@ -63,7 +64,7 @@ func (smb Smb) Init(params map[string]string, app *App) (IBackend, error) {
 	}
 	defer s.Logoff()
 
-	fs, err := s.Mount(p.shared)
+	fs, err := s.Mount("Shared")
 	if err != nil {
 		panic(err)
 	}

@@ -3,20 +3,21 @@ package common
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/tidwall/gjson"
-	"github.com/tidwall/sjson"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"os/user"
 	"path/filepath"
-	"sync"
 	"strings"
+	"sync"
+
+	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 )
 
 var (
-	Config Configuration
-	configPath string = filepath.Join(GetCurrentDir(), CONFIG_PATH + "config.json")
+	Config     Configuration
+	configPath string = filepath.Join(GetCurrentDir(), CONFIG_PATH+"config.json")
 )
 
 type Configuration struct {
@@ -95,7 +96,7 @@ func NewConfiguration() Configuration {
 				Title: "log",
 				Elmnts: []FormElement{
 					FormElement{Name: "enable", Type: "enable", Target: []string{"log_level"}, Default: true},
-					FormElement{Name: "level", Type: "select", Default: "INFO", Opts: []string{"DEBUG", "INFO", "WARNING", "ERROR"}, Id: "log_level",  Description: "Default: \"INFO\". This setting determines the level of detail at which log events are written to the log file"},
+					FormElement{Name: "level", Type: "select", Default: "INFO", Opts: []string{"DEBUG", "INFO", "WARNING", "ERROR"}, Id: "log_level", Description: "Default: \"INFO\". This setting determines the level of detail at which log events are written to the log file"},
 					FormElement{Name: "telemetry", Type: "boolean", Default: false, Description: "We won't share anything with any third party. This will only to be used to improve Filestash"},
 				},
 			},
@@ -143,10 +144,10 @@ func (this Form) toJSON(fn func(el FormElement) string) string {
 			ret = fmt.Sprintf("%s{", ret)
 		}
 		ret = fmt.Sprintf("%s\"%s\":%s", ret, formatKey(this.Elmnts[i].Name), fn(this.Elmnts[i]))
-		if i == len(this.Elmnts) - 1 && len(this.Form) == 0 {
+		if i == len(this.Elmnts)-1 && len(this.Form) == 0 {
 			ret = fmt.Sprintf("%s}", ret)
 		}
-		if i != len(this.Elmnts) - 1 || len(this.Form) != 0 {
+		if i != len(this.Elmnts)-1 || len(this.Form) != 0 {
 			ret = fmt.Sprintf("%s,", ret)
 		}
 	}
@@ -156,10 +157,10 @@ func (this Form) toJSON(fn func(el FormElement) string) string {
 			ret = fmt.Sprintf("%s{", ret)
 		}
 		ret = ret + this.Form[i].toJSON(fn)
-		if i == len(this.Form) - 1 {
+		if i == len(this.Form)-1 {
 			ret = fmt.Sprintf("%s}", ret)
 		}
-		if i != len(this.Form) - 1 {
+		if i != len(this.Form)-1 {
 			ret = fmt.Sprintf("%s,", ret)
 		}
 	}
@@ -175,6 +176,7 @@ type FormIterator struct {
 	Path string
 	*FormElement
 }
+
 func (this *Form) Iterator() []FormIterator {
 	slice := make([]FormIterator, 0)
 
@@ -232,7 +234,7 @@ func (this *Configuration) Load() {
 	Log.SetVisibility(this.Get("log.level").String())
 
 	go func() { // Trigger all the event listeners
-		for i:=0; i<len(this.onChange); i++ {
+		for i := 0; i < len(this.onChange); i++ {
 			this.onChange[i].Listener <- nil
 		}
 	}()
@@ -288,32 +290,36 @@ func (this *Configuration) Initialise() {
 	if len(this.Conn) == 0 {
 		this.Conn = []map[string]interface{}{
 			map[string]interface{}{
-				"type": "webdav",
+				"type":  "webdav",
 				"label": "WebDav",
 			},
 			map[string]interface{}{
-				"type": "ftp",
+				"type":  "ftp",
 				"label": "FTP",
 			},
 			map[string]interface{}{
-				"type": "sftp",
+				"type":  "sftp",
 				"label": "SFTP",
 			},
 			map[string]interface{}{
-				"type": "git",
+				"type":  "git",
 				"label": "GIT",
 			},
 			map[string]interface{}{
-				"type": "s3",
+				"type":  "s3",
 				"label": "S3",
 			},
 			map[string]interface{}{
-				"type": "dropbox",
+				"type":  "dropbox",
 				"label": "Dropbox",
 			},
 			map[string]interface{}{
-				"type": "gdrive",
+				"type":  "gdrive",
 				"label": "Drive",
+			},
+			map[string]interface{}{
+				"type":  "smb",
+				"label": "SMB",
 			},
 		}
 		this.Save()
@@ -323,8 +329,8 @@ func (this *Configuration) Initialise() {
 
 func (this Configuration) Save() Configuration {
 	// convert config data to an appropriate json struct
-	form := append(this.form, Form{ Title: "connections" })
-	v := Form{Form: form}.toJSON(func (el FormElement) string {
+	form := append(this.form, Form{Title: "connections"})
+	v := Form{Form: form}.toJSON(func(el FormElement) string {
 		a, e := json.Marshal(el.Value)
 		if e != nil {
 			return "null"
@@ -371,8 +377,8 @@ func (this Configuration) Export() interface{} {
 }
 
 func (this *Configuration) Get(key string) *Configuration {
-	var traverse func (forms *[]Form, path []string) *FormElement
-	traverse = func (forms *[]Form, path []string) *FormElement {
+	var traverse func(forms *[]Form, path []string) *FormElement
+	traverse = func(forms *[]Form, path []string) *FormElement {
 		if len(path) == 0 {
 			return nil
 		}
@@ -388,7 +394,7 @@ func (this *Configuration) Get(key string) *Configuration {
 						}
 					}
 					// 2) `formElement` does not exist, let's create it
-					(*forms)[i].Elmnts = append(currentForm.Elmnts, FormElement{ Name: path[1], Type: "text" })
+					(*forms)[i].Elmnts = append(currentForm.Elmnts, FormElement{Name: path[1], Type: "text"})
 					return &(*forms)[i].Elmnts[len(currentForm.Elmnts)]
 				} else {
 					// we are NOT on a leaf, let's continue our tree transversal
@@ -397,7 +403,7 @@ func (this *Configuration) Get(key string) *Configuration {
 			}
 		}
 		// append a new `form` if the current key doesn't exist
-		*forms = append(*forms, Form{ Title: path[0] })
+		*forms = append(*forms, Form{Title: path[0]})
 		return traverse(forms, path)
 	}
 
@@ -456,8 +462,10 @@ func (this *Configuration) Set(value interface{}) *Configuration {
 func (this Configuration) String() string {
 	val := this.Interface()
 	switch val.(type) {
-	    case string: return val.(string)
-	    case []byte: return string(val.([]byte))
+	case string:
+		return val.(string)
+	case []byte:
+		return string(val.([]byte))
 	}
 	return ""
 }
@@ -465,9 +473,12 @@ func (this Configuration) String() string {
 func (this Configuration) Int() int {
 	val := this.Interface()
 	switch val.(type) {
-	    case float64: return int(val.(float64))
-	    case int64: return int(val.(int64))
-	    case int: return val.(int)
+	case float64:
+		return int(val.(float64))
+	case int64:
+		return int(val.(int64))
+	case int:
+		return val.(int)
 	}
 	return 0
 }
@@ -475,7 +486,8 @@ func (this Configuration) Int() int {
 func (this Configuration) Bool() bool {
 	val := this.Interface()
 	switch val.(type) {
-	    case bool: return val.(bool)
+	case bool:
+		return val.(bool)
 	}
 	return false
 }
@@ -496,7 +508,7 @@ func (this Configuration) MarshalJSON() ([]byte, error) {
 	form = append(form, Form{
 		Title: "constant",
 		Elmnts: []FormElement{
-			FormElement{Name: "user", Type: "boolean", ReadOnly: true, Value: func() string{
+			FormElement{Name: "user", Type: "boolean", ReadOnly: true, Value: func() string {
 				if u, err := user.Current(); err == nil {
 					if u.Username != "" {
 						return u.Username
@@ -527,7 +539,7 @@ func (this Configuration) MarshalJSON() ([]byte, error) {
 func (this *Configuration) ListenForChange() ChangeListener {
 	this.mu.Lock()
 	change := ChangeListener{
-		Id: QuickString(20),
+		Id:       QuickString(20),
 		Listener: make(chan interface{}, 0),
 	}
 	this.onChange = append(this.onChange, change)
@@ -535,11 +547,11 @@ func (this *Configuration) ListenForChange() ChangeListener {
 	return change
 }
 
-func (this *Configuration) UnlistenForChange(c ChangeListener)  {
+func (this *Configuration) UnlistenForChange(c ChangeListener) {
 	this.mu.Lock()
-	for i:=0; i<len(this.onChange); i++ {
+	for i := 0; i < len(this.onChange); i++ {
 		if this.onChange[i].Id == c.Id {
-			if len(this.onChange) - 1 >= 0 {
+			if len(this.onChange)-1 >= 0 {
 				close(this.onChange[i].Listener)
 				this.onChange[i] = this.onChange[len(this.onChange)-1]
 				this.onChange = this.onChange[:len(this.onChange)-1]
