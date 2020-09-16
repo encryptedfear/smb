@@ -1,6 +1,7 @@
 package plg_backend_smb
 
 import (
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -44,11 +45,15 @@ func (smb Smb) Init(params map[string]string, app *App) (IBackend, error) {
 		return d, nil
 	}
 
+	fmt.Printf("This is stupid")
+
 	conn, err := net.Dial("tcp", p.server+":445")
 	if err != nil {
 		return nil, err
 	}
 	defer conn.Close()
+
+	fmt.Printf("This is stupid 2")
 
 	d := &smb2.Dialer{
 		Initiator: &smb2.NTLMInitiator{
@@ -57,11 +62,15 @@ func (smb Smb) Init(params map[string]string, app *App) (IBackend, error) {
 		},
 	}
 
+	fmt.Printf("This is stupid 3")
+
 	s, err := d.Dial(conn)
 	if err != nil {
 		return nil, err
 	}
 	defer s.Logoff()
+
+	fmt.Printf("This is stupid 4")
 
 	fs, err := s.Mount(p.shared)
 	if err != nil {
@@ -69,8 +78,11 @@ func (smb Smb) Init(params map[string]string, app *App) (IBackend, error) {
 	}
 	defer fs.Umount()
 
+	fmt.Printf("This is stupid 5")
+
 	smb.SmbClient = fs
-	SmbCache.Set(params, &smb)
+	fmt.Printf("This is stupid 6")
+	// SmbCache.Set(params, &smb)
 	return &smb, nil
 
 }
