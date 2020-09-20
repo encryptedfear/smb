@@ -84,7 +84,6 @@ func (smb Smb) Init(params map[string]string, app *App) (IBackend, error) {
 	fmt.Printf("This is stupid 6")
 	SmbCache.Set(params, smb)
 	fmt.Printf("This is stupid 7")
-	fmt.Printf("This is stupid 8" + smb)
 	return smb, nil
 
 }
