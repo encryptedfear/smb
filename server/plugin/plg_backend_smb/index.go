@@ -5,7 +5,6 @@ import (
 	"io"
 	"net"
 	"os"
-	"strings"
 
 	"github.com/hirochachacha/go-smb2"
 	. "github.com/mickael-kerjean/filestash/server/common"
@@ -24,7 +23,7 @@ func init() {
 }
 
 type Smb struct {
-	SmbClient *smb2.Share
+	SmbClient *smb2.Client
 }
 
 func (smb Smb) Init(params map[string]string, app *App) (IBackend, error) {
@@ -64,27 +63,19 @@ func (smb Smb) Init(params map[string]string, app *App) (IBackend, error) {
 
 	fmt.Printf("This is stupid 3")
 
-	s, err := d.Dial(conn)
+	client, err := d.Dial(conn)
 	if err != nil {
 		return nil, err
 	}
-	defer s.Logoff()
+	defer client.Logoff()
 
 	fmt.Printf("This is stupid 4")
 
-	fs, err := s.Mount(p.shared)
-	if err != nil {
-		return nil, err
-	}
-	defer fs.Umount()
+	smb.SmbClient = client
 
-	fmt.Printf("This is stupid 5")
-
-	smb.SmbClient = fs
-	fmt.Printf("This is stupid 6")
-	SmbCache.Set(params, smb)
+	SmbCache.Set(params, &smb)
 	fmt.Printf("This is stupid 7")
-	return smb, nil
+	return &smb, nil
 
 }
 
@@ -121,12 +112,18 @@ func (smb Smb) LoginForm() Form {
 }
 
 func (smb Smb) Ls(path string) ([]os.FileInfo, error) {
-
-	dir, err := smb.SmbClient.Open("")
+	fmt.Printf("This is stupid 8")
+	rfs, err := smb.SmbClient.Mount("Shared")
 	if err != nil {
 		return nil, err
 	}
 
+	dir, err := rfs.Open("")
+	fmt.Printf("This is stupid 9")
+	if err != nil {
+		return nil, err
+	}
+	fmt.Printf("This is stupid 10")
 	fis, err := dir.Readdir(0)
 	if err != nil {
 		return nil, err
@@ -136,7 +133,11 @@ func (smb Smb) Ls(path string) ([]os.FileInfo, error) {
 }
 
 func (smb Smb) Cat(path string) (io.ReadCloser, error) {
-	remoteFile, err := smb.SmbClient.Open(path)
+	rfs, err := smb.SmbClient.Mount("Shared")
+	if err != nil {
+		return nil, err
+	}
+	remoteFile, err := rfs.Open(path)
 	if err != nil {
 		return nil, err
 	}
@@ -145,45 +146,30 @@ func (smb Smb) Cat(path string) (io.ReadCloser, error) {
 }
 
 func (smb Smb) Mkdir(path string) error {
-	err := smb.SmbClient.Mkdir(path, os.FileMode(0777))
-	return err
+	return nil
 }
 
 func (smb Smb) Rm(path string) error {
-	err := smb.SmbClient.RemoveAll(path)
-	return err
+	return nil
 }
 
 func (smb Smb) Mv(from string, to string) error {
-	err := smb.SmbClient.Rename(from, to)
-	return err
+	return nil
 }
 
 func (smb Smb) Touch(path string) error {
-	file, err := smb.SmbClient.Create(path)
-	if err != nil {
-		return err
-	}
-	_, err = file.ReadFrom(strings.NewReader(""))
-	return err
+	return nil
 }
 
 func (smb Smb) Save(path string, file io.Reader) error {
-	remoteFile, err := smb.SmbClient.Create(path)
-	if err != nil {
-		return err
-	}
-	_, err = io.Copy(remoteFile, file)
-	remoteFile.Close()
-	return err
+
+	return nil
 }
 
 func (smb Smb) Stat(path string) (os.FileInfo, error) {
-	f, err := smb.SmbClient.Stat(path)
-	return f, err
+	return nil
 }
 
 func (smb Smb) Close() error {
-	err0 := smb.SmbClient.Umount()
-	return err0
+	return nil
 }
