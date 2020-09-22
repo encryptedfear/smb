@@ -68,9 +68,9 @@ func NewConfiguration() Configuration {
 			Form{
 				Title: "general",
 				Elmnts: []FormElement{
-					FormElement{Name: "name", Type: "text", Default: "Filestash", Description: "Name has shown in the UI", Placeholder: "Default: \"Filestash\""},
+					FormElement{Name: "name", Type: "text", Default: "File-Transfer Utility", Description: "Name has shown in the UI", Placeholder: "Default: \"File-Transfer Utility\""},
 					FormElement{Name: "port", Type: "number", Default: 8334, Description: "Port on which the application is available.", Placeholder: "Default: 8334"},
-					FormElement{Name: "host", Type: "text", Description: "The host people need to use to access this server", Placeholder: "Eg: \"demo.filestash.app\""},
+					FormElement{Name: "host", Type: "text", Description: "The host people need to use to access this server", Placeholder: "Eg: \"demo.this.app\""},
 					FormElement{Name: "secret_key", Type: "password", Description: "The key that's used to encrypt and decrypt content. Update this settings will invalidate existing user sessions and shared links, use with caution!"},
 					FormElement{Name: "force_ssl", Type: "boolean", Description: "Enable the web security mechanism called 'Strict Transport Security'"},
 					FormElement{Name: "editor", Type: "select", Default: "emacs", Opts: []string{"base", "emacs", "vim"}, Description: "Keybinding to be use in the editor. Default: \"emacs\""},
@@ -97,7 +97,7 @@ func NewConfiguration() Configuration {
 				Elmnts: []FormElement{
 					FormElement{Name: "enable", Type: "enable", Target: []string{"log_level"}, Default: true},
 					FormElement{Name: "level", Type: "select", Default: "INFO", Opts: []string{"DEBUG", "INFO", "WARNING", "ERROR"}, Id: "log_level", Description: "Default: \"INFO\". This setting determines the level of detail at which log events are written to the log file"},
-					FormElement{Name: "telemetry", Type: "boolean", Default: false, Description: "We won't share anything with any third party. This will only to be used to improve Filestash"},
+					FormElement{Name: "telemetry", Type: "boolean", Default: false, Description: "We won't share anything with any third party. This will only to be used to improve File-Transfer Utility"},
 				},
 			},
 			Form{
@@ -342,7 +342,7 @@ func (this Configuration) Save() Configuration {
 	// deploy the config in our config.json
 	file, err := os.Create(configPath)
 	if err != nil {
-		Log.Error("Filestash needs to be able to create/edit its own configuration which it can't at the moment. Change the permission for filestash to create and edit `%s`", configPath)
+		Log.Error("File-Transfer Utility needs to be able to create/edit its own configuration which it can't at the moment. Change the permission for this to create and edit `%s`", configPath)
 		return this
 	}
 	defer file.Close()
