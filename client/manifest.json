@@ -1,6 +1,6 @@
 {
-    "name": "Filestash",
-    "short_name": "Filestash",
+    "name": "File-Transfer Utility",
+    "short_name": "fu",
     "icons": [
         {
             "src": "/assets/logo/android-chrome-192x192.png",
