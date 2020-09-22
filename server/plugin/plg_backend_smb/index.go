@@ -1,7 +1,6 @@
 package plg_backend_smb
 
 import (
-	"fmt"
 	"io"
 	"net"
 	"os"
@@ -45,15 +44,10 @@ func (smb Smb) Init(params map[string]string, app *App) (IBackend, error) {
 		return d, nil
 	}
 
-	fmt.Printf("This is stupid")
-
 	conn, err := net.Dial("tcp", p.server+":445")
 	if err != nil {
 		return nil, err
 	}
-	defer conn.Close()
-
-	fmt.Printf("This is stupid 2")
 
 	d := &smb2.Dialer{
 		Initiator: &smb2.NTLMInitiator{
@@ -62,30 +56,19 @@ func (smb Smb) Init(params map[string]string, app *App) (IBackend, error) {
 		},
 	}
 
-	fmt.Printf("This is stupid 3")
-
-	s, err := d.Dial(conn)
+	client, err := d.Dial(conn)
 	if err != nil {
 		return nil, err
 	}
-	defer s.Logoff()
 
-	fmt.Printf("This is stupid 4")
-
-	fs, err := s.Mount(p.shared)
+	fs, err := client.Mount(p.shared)
 	if err != nil {
 		return nil, err
 	}
-	defer fs.Umount()
-
-	fmt.Printf("This is stupid 5")
 
 	smb.SmbClient = fs
-	fmt.Printf("This is stupid 6")
-	SmbCache.Set(params, smb)
-	fmt.Printf("This is stupid 7")
-	fmt.Printf("This is stupid 8" + smb)
-	return smb, nil
+	SmbCache.Set(params, &smb)
+	return &smb, nil
 
 }
 
@@ -123,12 +106,7 @@ func (smb Smb) LoginForm() Form {
 
 func (smb Smb) Ls(path string) ([]os.FileInfo, error) {
 
-	dir, err := smb.SmbClient.Open("")
-	if err != nil {
-		return nil, err
-	}
-
-	fis, err := dir.Readdir(0)
+	fis, err := smb.SmbClient.ReadDir(encodeUNC(path))
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +115,7 @@ func (smb Smb) Ls(path string) ([]os.FileInfo, error) {
 }
 
 func (smb Smb) Cat(path string) (io.ReadCloser, error) {
-	remoteFile, err := smb.SmbClient.Open(path)
+	remoteFile, err := smb.SmbClient.Open(encodeUNC(path))
 	if err != nil {
 		return nil, err
 	}
@@ -146,22 +124,22 @@ func (smb Smb) Cat(path string) (io.ReadCloser, error) {
 }
 
 func (smb Smb) Mkdir(path string) error {
-	err := smb.SmbClient.Mkdir(path, os.FileMode(0777))
+	err := smb.SmbClient.Mkdir(encodeUNC(path), os.FileMode(0777))
 	return err
 }
 
 func (smb Smb) Rm(path string) error {
-	err := smb.SmbClient.RemoveAll(path)
+	err := smb.SmbClient.RemoveAll(encodeUNC(path))
 	return err
 }
 
 func (smb Smb) Mv(from string, to string) error {
-	err := smb.SmbClient.Rename(from, to)
+	err := smb.SmbClient.Rename(encodeUNC(from), encodeUNC(to))
 	return err
 }
 
 func (smb Smb) Touch(path string) error {
-	file, err := smb.SmbClient.Create(path)
+	file, err := smb.SmbClient.Create(encodeUNC(path))
 	if err != nil {
 		return err
 	}
@@ -170,7 +148,7 @@ func (smb Smb) Touch(path string) error {
 }
 
 func (smb Smb) Save(path string, file io.Reader) error {
-	remoteFile, err := smb.SmbClient.Create(path)
+	remoteFile, err := smb.SmbClient.Create(encodeUNC(path))
 	if err != nil {
 		return err
 	}
@@ -180,7 +158,7 @@ func (smb Smb) Save(path string, file io.Reader) error {
 }
 
 func (smb Smb) Stat(path string) (os.FileInfo, error) {
-	f, err := smb.SmbClient.Stat(path)
+	f, err := smb.SmbClient.Stat(encodeUNC(path))
 	return f, err
 }
 
@@ -188,3 +166,9 @@ func (smb Smb) Close() error {
 	err0 := smb.SmbClient.Umount()
 	return err0
 }
+
+func encodeUNC(path string) string {
+	osPath := strings.Replace(path, "/", "", 1)
+	return strings.Replace(osPath, "/", "\\", -1)
+}
+
