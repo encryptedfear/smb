@@ -46,6 +46,7 @@ func (smb Smb) Init(params map[string]string, app *App) (IBackend, error) {
 
 	conn, err := net.Dial("tcp", p.server+":445")
 	if err != nil {
+		conn.Close()
 		return nil, err
 	}
 
@@ -58,11 +59,13 @@ func (smb Smb) Init(params map[string]string, app *App) (IBackend, error) {
 
 	client, err := d.Dial(conn)
 	if err != nil {
+		// client.Logoff()
 		return nil, err
 	}
 
 	fs, err := client.Mount(p.shared)
 	if err != nil {
+		// fs.Umount()
 		return nil, err
 	}
 
@@ -171,4 +174,3 @@ func encodeUNC(path string) string {
 	osPath := strings.Replace(path, "/", "", 1)
 	return strings.Replace(osPath, "/", "\\", -1)
 }
-
