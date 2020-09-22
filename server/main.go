@@ -113,7 +113,7 @@ func Init(a *App) {
 	// Routes are served via plugins to avoid getting stuck with plain HTTP. The idea is to
 	// support many more protocols in the future: HTTPS, HTTP2, TOR or whatever that sounds
 	// fancy I don't know much when this got written: IPFS, solid, ...
-	Log.Info("Filestash %s starting", APP_VERSION)
+	Log.Info("File-Transfer Utility %s starting", APP_VERSION)
 	for _, obj := range Hooks.Get.Starter() {
 		go obj(r)
 	}
