@@ -72,7 +72,6 @@ export class AdminPage extends React.Component {
                     <Route path={this.props.match.url + "/dashboard"} render={()=><DashboardPage isSaving={this.isSaving.bind(this)}/>} />
                     <Route path={this.props.match.url + "/configure"} render={()=><ConfigPage isSaving={this.isSaving.bind(this)}/>} />
                     <Route path={this.props.match.url + "/activity"} render={() =><LogPage isSaving={this.isSaving.bind(this)}/>} />
-                    <Route path={this.props.match.url + "/support"} component={SupportPage} />
                     <Route path={this.props.match.url + "/setup"} component={SetupPage} />
                     <Route path={this.props.match.url} component={HomePage} />
                   </Switch>
