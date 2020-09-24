@@ -112,11 +112,6 @@ const SideMenu = (props) => {
                 { t("Activity") }
               </NavLink>
             </li>
-            <li>
-              <NavLink activeClassName="active" to={props.url + "/support"}>
-                { t("Support") }
-              </NavLink>
-            </li>
           </ul>
         </div>
     );
